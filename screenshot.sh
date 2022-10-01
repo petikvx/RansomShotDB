@@ -74,9 +74,6 @@ range   : Rename directory and move into good
 
         echo "" >> README.md
 
-        # ![alt text](http://url/to/img.png)
-        for t in $(ls *jpeg -1 -c -r); do echo '!['"$t"']('"$t"')' >> README.md;done
-        
         rm brouillon.tmp
 
 
@@ -95,6 +92,15 @@ range   : Rename directory and move into good
 
         kaspersky_name=$(grep "result:" $t/README.md|cut -d \" -f 2|sed s/':'/'-'/)
         sha256sum=$(grep " _id:" $t/README.md|cut -d \" -f 2)
+
+        # Add jpeg file into the README.md
+        cd $t
+
+            # ![alt text](http://url/to/img.png)
+            for img in $(ls *jpeg -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
+        
+
+        cd ..
 
         #echo $kaspersky_name
         #echo $sha256sum
