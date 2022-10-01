@@ -10,7 +10,8 @@ case $1 in
     
 Hello and welcome to the 
 
-dl  : To download from Any.Run link
+dl      : To download from Any.Run link
+range   : Rename directory and move into good 
 
 
 "
@@ -27,9 +28,9 @@ dl  : To download from Any.Run link
     sha256sum=$(echo "$2"|cut -d \/ -f 5)
     reportnum=$(echo "$2"|cut -d \/ -f 6|cut -d "?" -f1)
 
-    if [[ -n $(find ./ -name "*$sha256sum*") ]]
+    if [[ -n $(find ./ -type d -name "*$sha256sum*") ]]
     then
-    echo "samples already exists"
+    echo "Sample already exists"
     exit
     fi
  
@@ -81,13 +82,58 @@ dl  : To download from Any.Run link
 
     cd ..
 
+    ;;
+
+    range)
+
+    # rename directory
+    # ./21afe9cfe38792b14e0fe1ae616a3dd352f108ba5a670b2f25beae5899bbe4f5
+    #           => HEUR:Trojan.Win32.Generic-21afe9cfe38792b14e0fe1ae616a3dd352f108ba5a670b2f25beae5899bbe4f5
+
+    for t in $(find -maxdepth 1 -type d -regextype posix-awk -regex ".*[a-z0-9]{64}")
+    do
+
+        kaspersky_name=$(grep "result:" $t/README.md|cut -d \" -f 2|sed s/':'/'-'/)
+        sha256sum=$(grep " _id:" $t/README.md|cut -d \" -f 2)
+
+        #echo $kaspersky_name
+        #echo $sha256sum
+        mv $t $kaspersky_name-$sha256sum
+        echo "New directory : $kaspersky_name-$sha256sum"
+
+
+    done
+
+    # create directory about the Kaspersky's name
+    # HEUR-Trojan.Win32.Generic-e67834d1e8b38ec5864cfa101b140aeaba8f1900a6e269e6a94c90fcbfe56678
+    # HEUR-Trojan => Win32 => Generic
+
+    find ./ -maxdepth 1 -type d -name "*.*-*"|cut -d "/" -f 2|cut -d "." -f1-2|sed s/'\.'/'\/'/|sort|uniq|while read d
+    do
+        mkdir -p "$d"
+        echo "$d created"
+    done
+
+    # on bouge les malware
+    find ./ -maxdepth 1 -type d -name "*.*-*"|cut -d "/" -f 2|while read t
+    do
+
+        dossier_destination=$(echo $t|cut -d "." -f1-2|sed s/'\.'/'\/'/)
+        dossier_lettre=$(echo $t|cut -d "." -f3)
+        firstCharacter=${dossier_lettre:0:1}
+
+        mkdir -p "$dossier_destination/$firstCharacter"
+                
+        mv -n $t "$dossier_destination/$firstCharacter" && rm -rf $t 2>/dev/null
+
+    done
+
 
 
     ;;
 
 
     *)
-
 
     echo "Erreur argument"
 
