@@ -1,5 +1,5 @@
 #!/bin/bash
-# Little tool to keep screenshot of Ransomware
+# Little tool to keep screenshot of Ransomware by PetiK
 # Start : 09/30/2022
 
 case $1 in
@@ -7,11 +7,13 @@ case $1 in
     help)
 
     echo -n "
-    
-Hello and welcome to the 
+
+RansomShotDB v0.1
+by PetiK                                          
+
 
 dl      : To download from Any.Run link
-range   : Rename directory and move into good 
+range   : Rename directory and move into good directory
 
 
 "
@@ -147,11 +149,7 @@ range   : Rename directory and move into good
 
     *)
 
-    echo "Erreur argument"
-
     $0 help
-
-
     ;;
 
 
