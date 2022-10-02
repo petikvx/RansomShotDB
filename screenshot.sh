@@ -27,6 +27,7 @@ range   : Rename directory and move into good
 
     sha256sum=$(echo "$2"|cut -d \/ -f 5)
     reportnum=$(echo "$2"|cut -d \/ -f 6|cut -d "?" -f1)
+    analyze_link=$(echo "$2"|cut -d "?" -f 1)
 
     if [[ -n $(find ./ -type d -name "*$sha256sum*") ]]
     then
@@ -68,6 +69,11 @@ range   : Rename directory and move into good
         echo "# $kaspersky_name-$sha256sum" > README.md
         echo "" >> README.md
 
+        # Analyze Link
+        echo "- $analyze_link" >> README.md
+        echo "" >> README.md
+
+        # VT infos
         echo "\`\`\`" >> README.md
         cat brouillon.tmp >> README.md
         echo "\`\`\`" >> README.md
@@ -97,7 +103,7 @@ range   : Rename directory and move into good
         cd $t
 
             # ![alt text](http://url/to/img.png)
-            for img in $(ls *jpeg -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
+            for img in $(ls *jp*g -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
         
 
         cd ..
