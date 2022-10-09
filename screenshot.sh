@@ -2,6 +2,9 @@
 # Little tool to keep screenshot of Ransomware by PetiK
 # Start : 09/30/2022
 
+
+
+
 case $1 in
 
     help)
@@ -21,6 +24,12 @@ range   : Rename directory and move into good directory
     ;;
 
     dl)
+
+    if echo "$2"|grep -q "any.run"
+    then
+    # If link from Any Run
+
+
     # https://app.any.run/tasks/5350f4ec-3df5-44ba-b607-ec4a054f32e4
     # https://any.run/report/5d40615701c48a122e44f831e7c8643d07765629a83b15d090587f469c77693d/4792add6-a454-4f64-927e-9f1f376cff95?_gl=1*vwwi83*_ga*MjEwNDAyNDMzMi4xNjQ0OTEwNTEx*_ga_53KB74YDZR*MTY2NDU0MDI2Mi40NC4xLjE2NjQ1NDU4MDEuNjAuMC4w&_ga=2.241602946.1052951905.1664540263-2104024332.1644910511
     # https://any.run/report/ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa/5350f4ec-3df5-44ba-b607-ec4a054f32e4?_gl=1*buccf4*_ga*MjEwNDAyNDMzMi4xNjQ0OTEwNTEx*_ga_53KB74YDZR*MTY2NDU0MDI2Mi40NC4xLjE2NjQ1NDA3NzYuNjAuMC4w&_ga=2.251958665.1052951905.1664540263-2104024332.1644910511
@@ -87,6 +96,57 @@ range   : Rename directory and move into good directory
 
     cd ..
 
+    elif echo "$2"|grep -q "tria.ge"
+    then
+    # Link from Triage
+    sha256sum=$(curl -s "$2"|egrep "\"[a-z0-9]{64}\"" -m 1|cut -d \" -f2)
+
+    echo "Link from Triage : $sha256sum"
+
+    if [[ -n $(find ./ -type d -name "*$sha256sum*") ]]
+    then
+    echo "Sample already exists"
+    exit
+    fi
+    
+    mkdir $sha256sum
+    cd $sha256sum
+
+        # Create README.md with VT informations
+        # https://github.com/VirusTotal/vt-cli
+
+        # _id,magic,packers,size,trid,creation_date,crowdsourced_yara_results,first_submission_date,last_analysis_date,last_analysis_results.Kaspersky.result
+        vt file $sha256sum --include=_id,magic,packers,size,trid,creation_date,crowdsourced_yara_results,first_submission_date,last_analysis_date,last_analysis_results.Kaspersky.result > brouillon.tmp
+
+        # Kaspersky's name of malware
+        kaspersky_name=$(grep "result:" brouillon.tmp|cut -d \" -f2|sed s/':'/'-'/)
+
+        # README.md file
+        echo "# $kaspersky_name-$sha256sum" > README.md
+        echo "" >> README.md
+
+        # Analyze Link
+        echo "- $2" >> README.md
+        echo "" >> README.md
+
+        # VT infos
+        echo "\`\`\`" >> README.md
+        cat brouillon.tmp >> README.md
+        echo "\`\`\`" >> README.md
+
+        echo "" >> README.md
+
+        rm brouillon.tmp
+    
+
+
+
+    cd ..
+    
+    else
+    echo "Not good link"
+    fi
+
     ;;
 
     range)
@@ -104,6 +164,8 @@ range   : Rename directory and move into good directory
         # Add jpeg file into the README.md
         cd $t
 
+
+            find ./ -name "*png"|while read t; do mv "$t" $(echo "$t"|sed 's/[)(]//g'|sed 's/ //g'); done
             # ![alt text](http://url/to/img.png)
             for img in $(ls *jp*g -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
             for img in $(ls *png -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
@@ -158,4 +220,34 @@ range   : Rename directory and move into good directory
 esac
 
 
+createreadme () {
 
+    sha256sum=$1
+
+        # Create README.md with VT informations
+        # https://github.com/VirusTotal/vt-cli
+
+        # _id,magic,packers,size,trid,creation_date,crowdsourced_yara_results,first_submission_date,last_analysis_date,last_analysis_results.Kaspersky.result
+        vt file $sha256sum --include=_id,magic,packers,size,trid,creation_date,crowdsourced_yara_results,first_submission_date,last_analysis_date,last_analysis_results.Kaspersky.result > brouillon.tmp
+
+        # Kaspersky's name of malware
+        kaspersky_name=$(grep "result:" brouillon.tmp|cut -d \" -f2|sed s/':'/'-'/)
+
+        # README.md file
+        echo "# $kaspersky_name-$sha256sum" > README.md
+        echo "" >> README.md
+
+        # Analyze Link
+        echo "- $analyze_link" >> README.md
+        echo "" >> README.md
+
+        # VT infos
+        echo "\`\`\`" >> README.md
+        cat brouillon.tmp >> README.md
+        echo "\`\`\`" >> README.md
+
+        echo "" >> README.md
+
+        rm brouillon.tmp
+
+}
