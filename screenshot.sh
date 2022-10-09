@@ -106,6 +106,8 @@ range   : Rename directory and move into good directory
 
             # ![alt text](http://url/to/img.png)
             for img in $(ls *jp*g -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
+            for img in $(ls *png -1 -c -r); do echo '!['"$img"']('"$img"')' >> README.md;done
+            
         
 
         cd ..
